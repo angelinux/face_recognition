@@ -30,8 +30,8 @@ RUN cd ~ && \
     mkdir -p dlib && \
     git clone -b 'v19.9' --single-branch https://github.com/davisking/dlib.git dlib/ && \
     cd  dlib/ && \
-    python3 setup.py install --yes USE_AVX_INSTRUCTIONS
-
+    sed -i -e 's/SSE4/SSE2/g' /root/dlib/tools/python/CMakeLists.txt && \
+    python3 setup.py install --no USE_AVX_INSTRUCTIONS --no DLIB_USE_CUDA
 
 # The rest of this file just runs an example script.
 
@@ -44,7 +44,10 @@ RUN cd ~ && \
 COPY . /root/face_recognition
 RUN cd /root/face_recognition && \
     pip3 install -r requirements.txt && \
+    pip3 install flask && \
     python3 setup.py install
 
+EXPOSE 5001
+
 CMD cd /root/face_recognition/examples && \
-    python3 recognize_faces_in_pictures.py
+    python3 web_service_encodings.py
